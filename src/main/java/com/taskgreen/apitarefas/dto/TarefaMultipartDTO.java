@@ -1,20 +1,41 @@
 package com.taskgreen.apitarefas.dto;
 
+import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
 
 public class TarefaMultipartDTO {
+
     private Long id;
+
+    @NotBlank(message = "O nome da tarefa é obrigatório")
+    @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
     private String nome;
+
+    @NotBlank(message = "A data de início é obrigatória")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Formato de data inválido (use yyyy-MM-dd)")
     private String dataInicio;
+
+    @NotBlank(message = "A data de entrega é obrigatória")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Formato de data inválido (use yyyy-MM-dd)")
     private String dataEntrega;
+
+    @NotBlank(message = "O horário de início é obrigatório")
+    @Pattern(regexp = "^\\d{2}:\\d{2}$", message = "Formato de horário inválido (use HH:mm)")
     private String horarioInicio;
+
+    @NotBlank(message = "O horário de término é obrigatório")
+    @Pattern(regexp = "^\\d{2}:\\d{2}$", message = "Formato de horário inválido (use HH:mm)")
     private String horarioTermino;
+
+    @NotBlank(message = "A prioridade é obrigatória")
     private String prioridade;
+
+    @Size(max = 500, message = "A descrição deve ter no máximo 500 caracteres")
     private String descricao;
+
     private MultipartFile imagem;
 
-    // Getters e Setters
-
+    // ===== GETTERS E SETTERS =====
     public Long getId() {
         return id;
     }

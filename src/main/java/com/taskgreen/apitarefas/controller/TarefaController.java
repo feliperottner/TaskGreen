@@ -1,10 +1,13 @@
 package com.taskgreen.apitarefas.controller;
 
-// ✅ Adicionado import do Cloudinary
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import com.taskgreen.apitarefas.dto.TarefaDTO;
+import com.taskgreen.apitarefas.dto.TarefaMultipartDTO;
+import com.taskgreen.apitarefas.model.Tarefa;
+import com.taskgreen.apitarefas.service.TarefaService;
+import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -12,58 +15,95 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.UUID;
-import com.taskgreen.apitarefas.dto.TarefaDTO;
-import com.taskgreen.apitarefas.dto.TarefaMultipartDTO;
-import com.taskgreen.apitarefas.model.Tarefa;
-import com.taskgreen.apitarefas.service.TarefaService;
 
-@Tag(name = "Tarefas", description = "API para gerenciamento de tarefas pessoais (CRUD com upload de imagem)")
+@Tag(name = "Tarefas", description = "API para gerenciamento de tarefas pessoais")
 @Validated
 @RestController
 @RequestMapping("/api/tarefas")
 public class TarefaController {
 
+    private final TarefaService tarefaService;
+    private final Path root = Paths.get("uploads");
+
     @Autowired
-    private TarefaService tarefaService;
+    public TarefaController(TarefaService tarefaService) {
+        this.tarefaService = tarefaService;
+    }
 
-    // ✅ Injetando Cloudinary e removendo pasta local
-    @Autowired
-    private Cloudinary cloudinary;
+    @PostConstruct
+    public void init() {
+        try {
+            Files.createDirectories(root);
+        } catch (IOException e) {
+            throw new RuntimeException("Não foi possível criar a pasta uploads");
+        }
+    }
 
-    /* ========== ENDPOINTS ========== */
+    /* ========== ENDPOINTS GET ========== */
+    @Operation(summary = "Listar todas as tarefas")
+    @GetMapping
+    public ResponseEntity<List<TarefaDTO>> listarTodas() {
+        List<Tarefa> tarefas = tarefaService.listarTodasTarefas();
+        return ResponseEntity.ok(tarefas.stream().map(TarefaDTO::new).toList());
+    }
 
-    // ... (Métodos listarTodas, buscarPorId e filtrarPorConclusao permanecem IGUAIS)
+    @Operation(summary = "Buscar tarefa por ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<TarefaDTO> buscarPorId(
+            @Parameter(description = "ID da tarefa") @PathVariable String id) {
+        return tarefaService.buscarPorId(id)
+                .map(tarefa -> ResponseEntity.ok(new TarefaDTO(tarefa)))
+                .orElse(ResponseEntity.notFound().build());
+    }
 
-    // ✅ Alterado para Cloudinary - CRIAR TAREFA
-    @Operation(summary = "Criar tarefa", description = "Upload de imagem opcional")
+    @Operation(summary = "Filtrar tarefas por conclusão")
+    @GetMapping("/filtro")
+    public ResponseEntity<List<TarefaDTO>> filtrarPorConclusao(
+            @Parameter(description = "Status de conclusão") @RequestParam boolean concluida) {
+        List<Tarefa> tarefas = tarefaService.filtrarPorConclusao(concluida);
+        return ResponseEntity.ok(tarefas.stream().map(TarefaDTO::new).toList());
+    }
+
+    /* ========== ENDPOINTS POST/PUT/DELETE ========== */
+    @Operation(summary = "Criar tarefa com imagem")
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<TarefaDTO> criarTarefa(
-            @Valid @ModelAttribute TarefaMultipartDTO dto) {
+    public ResponseEntity<?> criarTarefa(@Valid @ModelAttribute TarefaMultipartDTO dto) {
         try {
             Tarefa tarefa = mapearDtoParaTarefa(dto);
             Tarefa salva = tarefaService.salvarTarefa(tarefa);
             return ResponseEntity.ok(new TarefaDTO(salva));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of(
+                    "erro", "Falha ao criar tarefa",
+                    "detalhes", e.getMessage()
+            ));
         }
     }
 
-    // ... (Método atualizarStatus permanece IGUAL)
+    @Operation(summary = "Atualizar status de conclusão")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TarefaDTO> atualizarStatus(
+            @Parameter(description = "ID da tarefa") @PathVariable String id,
+            @Parameter(description = "Novo status") @RequestParam boolean concluida) {
+        Tarefa tarefa = tarefaService.atualizarStatusConclusao(id, concluida);
+        return ResponseEntity.ok(new TarefaDTO(tarefa));
+    }
 
-    // ✅ Alterado para Cloudinary - ATUALIZAR TAREFA
     @Operation(summary = "Atualizar tarefa")
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     public ResponseEntity<TarefaDTO> atualizarTarefa(
-            @Parameter(description = "ID da tarefa") @PathVariable Long id,
+            @Parameter(description = "ID da tarefa") @PathVariable String id,
             @ModelAttribute TarefaMultipartDTO dto) {
 
         Optional<Tarefa> tarefaOptional = tarefaService.buscarPorId(id);
@@ -74,60 +114,70 @@ public class TarefaController {
         try {
             Tarefa tarefaExistente = tarefaOptional.get();
 
-            // ✅ Remove imagem antiga do Cloudinary se existir
             if (tarefaExistente.getImagemNome() != null && dto.getImagem() != null) {
-                cloudinary.uploader().destroy(tarefaExistente.getImagemNome(), ObjectUtils.emptyMap());
+                Files.deleteIfExists(root.resolve(tarefaExistente.getImagemNome()));
             }
 
             atualizarCamposTarefa(tarefaExistente, dto);
             Tarefa atualizada = tarefaService.salvarTarefa(tarefaExistente);
             return ResponseEntity.ok(new TarefaDTO(atualizada));
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    // ✅ Alterado para Cloudinary - DELETAR TAREFA
     @Operation(summary = "Deletar tarefa")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarTarefa(
-            @Parameter(description = "ID da tarefa") @PathVariable Long id) throws IOException { // ✅ Adicionado throws IOException
-
+    public ResponseEntity<Void> deletarTarefa(@PathVariable String id) throws IOException {
         Optional<Tarefa> tarefaOpt = tarefaService.buscarPorId(id);
         if (tarefaOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        // ✅ Remove imagem do Cloudinary se existir
         if (tarefaOpt.get().getImagemNome() != null) {
-            cloudinary.uploader().destroy(tarefaOpt.get().getImagemNome(), ObjectUtils.emptyMap());
+            Files.deleteIfExists(root.resolve(tarefaOpt.get().getImagemNome()));
         }
 
         tarefaService.deletarTarefa(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ NOVO ENDPOINT - DELETAR APENAS IMAGEM
     @Operation(summary = "Deletar imagem da tarefa")
     @DeleteMapping("/{id}/imagem")
-    public ResponseEntity<Void> deletarImagem(
-            @Parameter(description = "ID da tarefa") @PathVariable Long id) throws IOException {
-
+    public ResponseEntity<Void> deletarImagem(@PathVariable String id) throws IOException {
         Optional<Tarefa> tarefaOpt = tarefaService.buscarPorId(id);
         if (tarefaOpt.isEmpty() || tarefaOpt.get().getImagemNome() == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Remove do Cloudinary
-        cloudinary.uploader().destroy(tarefaOpt.get().getImagemNome(), ObjectUtils.emptyMap());
+        Files.deleteIfExists(root.resolve(tarefaOpt.get().getImagemNome()));
 
-        // Atualiza a tarefa
         Tarefa tarefa = tarefaOpt.get();
         tarefa.setImagemNome(null);
         tarefa.setImagemUrl(null);
         tarefaService.salvarTarefa(tarefa);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Baixar imagem da tarefa")
+    @GetMapping("/uploads/{filename}")
+    public ResponseEntity<Resource> getImagem(@PathVariable String filename) {
+        try {
+            Path file = root.resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /* ========== MÉTODOS AUXILIARES ========== */
@@ -164,19 +214,15 @@ public class TarefaController {
         }
     }
 
-    // ✅ COMPLETAMENTE ALTERADO para Cloudinary
     private void salvarImagem(MultipartFile arquivo, Tarefa tarefa) throws IOException {
-        Map<?, ?> uploadResult = cloudinary.uploader().upload(
-                arquivo.getBytes(),
-                ObjectUtils.asMap(
-                        "folder", "tarefas",
-                        "public_id", "tarefa_" + UUID.randomUUID(),
-                        "overwrite", false
-                )
-        );
+        if (arquivo.isEmpty()) {
+            return;
+        }
 
-        // Armazena tanto o public_id quanto a URL completa
-        tarefa.setImagemNome(uploadResult.get("public_id").toString());
-        tarefa.setImagemUrl(uploadResult.get("secure_url").toString()); // ✅ URL HTTPS
+        String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
+        Files.copy(arquivo.getInputStream(), root.resolve(nomeArquivo), StandardCopyOption.REPLACE_EXISTING);
+
+        tarefa.setImagemNome(nomeArquivo);
+        tarefa.setImagemUrl("/api/tarefas/uploads/" + nomeArquivo);
     }
 }

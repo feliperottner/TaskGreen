@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class TarefaDTO {
-    private Long id;
+    private String id;
     private String nome;
     private LocalDate dataInicio;
     private LocalDate dataEntrega;
@@ -31,7 +31,7 @@ public class TarefaDTO {
     }
 
     // Getters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

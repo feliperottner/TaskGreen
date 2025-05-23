@@ -5,9 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class TarefaMultipartDTO {
 
-    private Long id;
-
-    @NotBlank(message = "O nome da tarefa é obrigatório")
+    @NotBlank(message = "Nome é obrigatório")
     @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
     private String nome;
 
@@ -33,19 +31,10 @@ public class TarefaMultipartDTO {
     @Size(max = 500, message = "A descrição deve ter no máximo 500 caracteres")
     private String descricao;
 
-    private boolean concluida = false; // CAMPO NOVO ADICIONADO
-
+    private boolean concluida = false;
     private MultipartFile imagem;
 
-    // ===== GETTERS E SETTERS =====
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Getters e Setters
     public String getNome() {
         return nome;
     }
@@ -102,7 +91,6 @@ public class TarefaMultipartDTO {
         this.descricao = descricao;
     }
 
-    // GETTERS/SETTERS NOVOS PARA O CAMPO 'concluida'
     public boolean isConcluida() {
         return concluida;
     }

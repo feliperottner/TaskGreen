@@ -1,73 +1,52 @@
 package com.taskgreen.apitarefas.model;
 
-// Importações para anotações de JPA e validações
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-// Importações para manipular datas e horários
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-// Anotação que diz que essa classe será uma tabela no banco de dados
-@Entity
-// Define o nome da tabela no banco de dados como "tarefas"
-@Table(name = "tarefas")
+@Document(collection = "tarefas") // Substitui @Entity do JPA
 public class Tarefa {
 
-    // Identificador único da tarefa (ID)
-    @Id
-    // O valor será gerado automaticamente (auto incremento)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id // Anotação específica do MongoDB (não usa @GeneratedValue)
+    private String id; // Tipo mudou de Long para String
 
-    // Nome da tarefa - obrigatório e não pode ser vazio
     @NotBlank(message = "O nome da tarefa é obrigatório.")
     private String nome;
 
-    // Data em que a tarefa começa - obrigatório
     @NotNull(message = "A data de início é obrigatória.")
     private LocalDate dataInicio;
 
-    // Data em que a tarefa deve ser entregue - obrigatório
     @NotNull(message = "A data de entrega é obrigatória.")
     private LocalDate dataEntrega;
 
-    // Horário que a tarefa começa - obrigatório
     @NotNull(message = "O horário de início é obrigatório.")
     private LocalTime horarioInicio;
 
-    // Horário que a tarefa termina - obrigatório
     @NotNull(message = "O horário de término é obrigatório.")
     private LocalTime horarioTermino;
 
-    // Prioridade da tarefa (por exemplo: alta, média, baixa) - obrigatório
     @NotBlank(message = "A prioridade é obrigatória.")
-    private String prioridade; // Agora sem validação de enum, mas o front controla os valores
+    private String prioridade;
 
-    // Campo opcional para descrever detalhes sobre a tarefa
     private String descricao;
-
-    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean concluida = false;
-
-    // Aqui armazenamos a URL da imagem da tarefa (ex: link da internet ou nome do arquivo local)
-    @Column(name = "imagem_nome") // Nome do arquivo no Cloudinary (public_id)
     private String imagemNome;
-
-    @Column(name = "imagem_url", length = 512) // URL completa da imagem
     private String imagemUrl;
 
-    // === MÉTODOS GET E SET ===
-    // Usados para acessar (get) e alterar (set) os valores dos atributos
-
-    public Long getId() {
+    // Getters e Setters (MANTIDOS IGUAIS)
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
+
+    // ... (mantenha todos os outros getters e setters existentes)
+
 
     public String getNome() {
         return nome;

@@ -1,66 +1,79 @@
 package com.taskgreen.apitarefas.service;
 
-// Spring
+import com.taskgreen.apitarefas.model.Tarefa;
+import com.taskgreen.apitarefas.repository.TarefaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Java Collections
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
-// Model e Repository
-import com.taskgreen.apitarefas.model.Tarefa;
-import com.taskgreen.apitarefas.repository.TarefaRepository;
+import java.util.stream.Collectors;
 
 @Service
 public class TarefaService {
 
+    private final TarefaRepository tarefaRepository;
+
     @Autowired
-    private TarefaRepository tarefaRepository;
+    public TarefaService(TarefaRepository tarefaRepository) {
+        this.tarefaRepository = tarefaRepository;
+    }
 
     private final List<String> PRIORIDADES_VALIDAS = List.of("baixa", "media", "alta");
 
-    public Page<Tarefa> listarTarefas(int page, int size) {
-        return tarefaRepository.findAll(PageRequest.of(page, size));
+    public List<Tarefa> listarTodasTarefas() {
+        return tarefaRepository.findAll();
     }
 
-    public Optional<Tarefa> buscarPorId(Long id) {
+    public Optional<Tarefa> buscarPorId(String id) {
         return tarefaRepository.findById(id);
     }
 
-    public boolean existeTarefa(Long id) {
+    public boolean existeTarefa(String id) {
         return tarefaRepository.existsById(id);
+    }
+
+    public List<Tarefa> filtrarPorConclusao(boolean concluida) {
+        return tarefaRepository.findAll().stream()
+                .filter(t -> t.isConcluida() == concluida)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public Tarefa salvarTarefa(Tarefa tarefa) {
+        validarDatas(tarefa);
         validarPrioridade(tarefa.getPrioridade());
         validarTarefa(tarefa);
         return tarefaRepository.save(tarefa);
     }
 
     @Transactional
-    public void deletarTarefa(Long id) {
+    public void deletarTarefa(String id) {
         tarefaRepository.deleteById(id);
     }
 
     @Transactional
-    public Tarefa atualizarStatusConclusao(Long id, boolean concluida) {
+    public Tarefa atualizarStatusConclusao(String id, boolean concluida) {
         Tarefa tarefa = tarefaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada"));
         tarefa.setConcluida(concluida);
         return tarefaRepository.save(tarefa);
     }
 
-    @Transactional(readOnly = true)
-    public Page<Tarefa> filtrarPorConclusao(boolean concluida, int page, int size) {
-        return tarefaRepository.findByConcluida(concluida, PageRequest.of(page, size));
+    private void validarDatas(Tarefa tarefa) {
+        LocalDate hoje = LocalDate.now();
+
+        if (tarefa.getDataInicio().isBefore(hoje)) {
+            throw new IllegalArgumentException("Data de início não pode ser no passado");
+        }
+
+        if (tarefa.getDataEntrega().isBefore(tarefa.getDataInicio())) {
+            throw new IllegalArgumentException("Data de entrega não pode ser antes da data de início");
+        }
     }
 
-    // Métodos de validação
     private void validarPrioridade(String prioridade) {
         if (prioridade == null || !PRIORIDADES_VALIDAS.contains(prioridade.toLowerCase())) {
             throw new IllegalArgumentException("Prioridade deve ser: baixa, media ou alta");
@@ -68,9 +81,6 @@ public class TarefaService {
     }
 
     private void validarTarefa(Tarefa tarefa) {
-        if (tarefa.getDataInicio().isAfter(tarefa.getDataEntrega())) {
-            throw new IllegalArgumentException("Data de início não pode ser após a data de entrega");
-        }
         if (tarefa.getHorarioInicio().isAfter(tarefa.getHorarioTermino())) {
             throw new IllegalArgumentException("Horário de início não pode ser após o horário de término");
         }

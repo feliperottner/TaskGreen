@@ -42,14 +42,21 @@ public class Tarefa {
     private LocalTime horarioTermino;
 
     // Prioridade da tarefa (por exemplo: alta, média, baixa) - obrigatório
-    @NotBlank(message = "A prioridade da tarefa é obrigatória.")
-    private String prioridade;
+    @NotBlank(message = "A prioridade é obrigatória.")
+    private String prioridade; // Agora sem validação de enum, mas o front controla os valores
 
     // Campo opcional para descrever detalhes sobre a tarefa
     private String descricao;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean concluida = false;
+
     // Aqui armazenamos a URL da imagem da tarefa (ex: link da internet ou nome do arquivo local)
+    @Column(name = "imagem_nome") // Nome do arquivo no Cloudinary (public_id)
     private String imagemNome;
+
+    @Column(name = "imagem_url", length = 512) // URL completa da imagem
+    private String imagemUrl;
 
     // === MÉTODOS GET E SET ===
     // Usados para acessar (get) e alterar (set) os valores dos atributos
@@ -116,6 +123,22 @@ public class Tarefa {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public boolean isConcluida() {
+        return concluida;
+    }
+
+    public void setConcluida(boolean concluida) {
+        this.concluida = concluida;
+    }
+
+    public String getImagemUrl() {
+        return imagemUrl;
+    }
+
+    public void setImagemUrl(String imagemUrl) {
+        this.imagemUrl = imagemUrl;
     }
 
     public String getImagemNome() {

@@ -33,6 +33,8 @@ public class TarefaMultipartDTO {
     @Size(max = 500, message = "A descrição deve ter no máximo 500 caracteres")
     private String descricao;
 
+    private boolean concluida = false; // CAMPO NOVO ADICIONADO
+
     private MultipartFile imagem;
 
     // ===== GETTERS E SETTERS =====
@@ -98,6 +100,15 @@ public class TarefaMultipartDTO {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    // GETTERS/SETTERS NOVOS PARA O CAMPO 'concluida'
+    public boolean isConcluida() {
+        return concluida;
+    }
+
+    public void setConcluida(boolean concluida) {
+        this.concluida = concluida;
     }
 
     public MultipartFile getImagem() {

@@ -14,6 +14,7 @@ public class TarefaDTO {
     private LocalTime horarioTermino;
     private String prioridade;
     private String descricao;
+    private boolean concluida;
     private String imagemUrl;
 
     public TarefaDTO(Tarefa tarefa) {
@@ -25,9 +26,8 @@ public class TarefaDTO {
         this.horarioTermino = tarefa.getHorarioTermino();
         this.prioridade = tarefa.getPrioridade();
         this.descricao = tarefa.getDescricao();
-        this.imagemUrl = (tarefa.getImagemNome() != null)
-                ? "http://localhost:8080/api/tarefas/imagem/" + tarefa.getImagemNome()
-                : null;
+        this.concluida = tarefa.isConcluida();
+        this.imagemUrl = (tarefa.getImagemNome());
     }
 
     // Getters
@@ -61,6 +61,10 @@ public class TarefaDTO {
 
     public String getDescricao() {
         return descricao;
+    }
+
+    public boolean isConcluida() {
+        return concluida;
     }
 
     public String getImagemUrl() {

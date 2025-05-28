@@ -39,9 +39,9 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 
 ## 🚀 Como Rodar e Acessar o Projeto
 
-cd taskgreen
-npm install
-npx expo start
+-cd taskgreen
+-npm install
+-npx expo start
 
 ---
 ### 📱 Rodando localmente

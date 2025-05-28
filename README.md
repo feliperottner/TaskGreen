@@ -48,4 +48,5 @@ O projeto foi desenvolvido com as seguintes tecnologias:
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/seu-usuario/taskgreen.git
+   git clone https://github.com/feliperottner/TaskGreen.git
+   

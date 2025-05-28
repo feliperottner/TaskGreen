@@ -7,163 +7,54 @@ import {
   FlatList,
   StyleSheet,
   Image,
-  Modal,
-  TouchableWithoutFeedback,
+  Modal
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Navbar from '../navbar';
 import axios from 'axios';
-import { Ionicons } from '@expo/vector-icons';
 
-const hoje = new Date();
-const dataKey = hoje.toISOString().split('T')[0];
-const horaInicio = '09:00';
-const horaTermino = '10:00';
-
+// Tarefas simuladas para teste
 const tarefasSimuladas = [
- { id: 'simulada-1',
-          nome: 'Tarefa Simulada',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: horaInicio, 
-          horaTermino: horaTermino, 
-          prioridade: 'Alta',
-          descricao: 'Esta é uma tarefa simulada para teste.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-2',
-          nome: 'Outra Tarefa',
-          dataInicio: hoje.toISOString(),
-          
-          dataEntrega: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          horaInicio: '14:00',
-          horaTermino: '15:00',
-          prioridade: 'Baixa',
-          descricao: 'Mais uma tarefa para visualizar na lista.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-3',
-          nome: 'Tarefa Simulada',
-          status: 'Concluída',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: horaInicio, 
-          horaTermino: horaTermino, 
-          prioridade: 'Alta',
-          descricao: 'Esta é uma tarefa simulada para teste.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-4',
-          nome: 'Outra Tarefa',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: '14:00',
-          horaTermino: '15:00',
-          prioridade: 'Baixa',
-          descricao: 'Mais uma tarefa para visualizar na lista.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-5',
-          nome: 'Tarefa Simulada',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: horaInicio, 
-          horaTermino: horaTermino, 
-          prioridade: 'Alta',
-          descricao: 'Esta é uma tarefa simulada para teste.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-6',
-          nome: 'Outra Tarefa',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: '14:00',
-          horaTermino: '15:00',
-          prioridade: 'Baixa',
-          descricao: 'Mais uma tarefa para visualizar na lista.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-7',
-          nome: 'Tarefa Simulada',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: horaInicio, 
-          horaTermino: horaTermino, 
-          prioridade: 'Alta',
-          descricao: 'Esta é uma tarefa simulada para teste.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-8',
-          nome: 'Outra Tarefa',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: '14:00',
-          horaTermino: '15:00',
-          prioridade: 'Baixa',
-          descricao: 'Mais uma tarefa para visualizar na lista.',
-          imagem: null,
-        },{
-          id: 'simulada-9',
-          nome: 'Tarefa Simulada',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: horaInicio, 
-          horaTermino: horaTermino, 
-          prioridade: 'Alta',
-          descricao: 'Esta é uma tarefa simulada para teste.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-10',
-          nome: 'Outra Tarefa',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: '14:00',
-          horaTermino: '15:00',
-          prioridade: 'Baixa',
-          descricao: 'Mais uma tarefa para visualizar na lista.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-11',
-          nome: 'Tarefa Simulada',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: horaInicio, 
-          horaTermino: horaTermino, 
-          prioridade: 'Alta',
-          descricao: 'Esta é uma tarefa simulada para teste.',
-          imagem: null,
-        },
-        {
-          id: 'simulada-12',
-          nome: 'Outra Tarefa',
-          dataInicio: hoje.toISOString(),
-          dataEntrega: hoje.toISOString(),
-          horaInicio: '14:00',
-          horaTermino: '15:00',
-          prioridade: 'Baixa',
-          descricao: 'Mais uma tarefa para visualizar na lista.',
-          imagem: null,
-        }
+  {
+    id: '1',
+    nome: 'Reunião com equipe',
+    dataInicio: new Date().toISOString(),
+    dataEntrega: new Date().toISOString(),
+    horaInicio: '09:00',
+    horaTermino: '10:30',
+    prioridade: 'alta',
+    descricao: 'Discutir os próximos passos do projeto',
+    status: 'A fazer',
+    imagem: null
+  },
+  {
+    id: '2',
+    nome: 'Atualizar documentação',
+    dataInicio: new Date().toISOString(),
+    dataEntrega: new Date(Date.now() + 86400000).toISOString(),
+    horaInicio: '14:00',
+    horaTermino: '15:30',
+    prioridade: 'media',
+    descricao: 'Atualizar os documentos técnicos do sistema',
+    status: 'A fazer',
+    imagem: null
+  }
 ];
 
-export default function TaskScreen() {
+export default function PesquisaScreen() {
   const navigation = useNavigation();
   const [search, setSearch] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [tasks, setTasks] = useState({});
   const [filtroSelecionado, setFiltroSelecionado] = useState('A fazer');
-   const [confirmarExcluir, setConfirmarExcluir] = useState(false);
+  const [confirmarExcluir, setConfirmarExcluir] = useState(false);
+  const [observacaoConclusao, setObservacaoConclusao] = useState('');
+  const [showObservacaoInput, setShowObservacaoInput] = useState(false);
+
+  const hoje = new Date();
+  const dataKey = hoje.toISOString().split('T')[0];
 
   function atribuirStatusTarefas(tarefas) {
     const hoje = new Date();
@@ -180,9 +71,12 @@ export default function TaskScreen() {
     });
   }
 
-  async function concluirTarefa(id) {
+  async function concluirTarefa(id, observacao = '') {
     try {
-      await axios.patch(`http://localhost:8080/tarefas/${id}`, { status: 'Concluída' });
+      await axios.patch(`http://localhost:8080/tarefas/${id}`, { 
+        status: 'Concluída',
+        observacao 
+      });
       setTasks((prevTasks) => {
         const novasTarefas = (prevTasks[dataKey] || []).map((tarefa) =>
           tarefa.id === id ? { ...tarefa, status: 'Concluída' } : tarefa
@@ -190,10 +84,12 @@ export default function TaskScreen() {
         return { ...prevTasks, [dataKey]: atribuirStatusTarefas(novasTarefas) };
       });
     } catch (error) {
+      console.error('Erro ao concluir tarefa:', error);
     }
     setModalVisible(false);
+    setShowObservacaoInput(false);
+    setObservacaoConclusao('');
   }
-
 
   async function excluirTarefa(id) {
     try {
@@ -203,14 +99,26 @@ export default function TaskScreen() {
         return { ...prevTasks, [dataKey]: novasTarefas };
       });
     } catch (error) {
+      console.error('Erro ao excluir tarefa:', error);
     }
     setModalVisible(false);
   }
 
   useEffect(() => {
-    setTasks({
-      [dataKey]: atribuirStatusTarefas(tarefasSimuladas),
-    });
+    const carregarTarefas = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/tarefas');
+        setTasks({
+          [dataKey]: atribuirStatusTarefas(response.data || tarefasSimuladas)
+        });
+      } catch (error) {
+        setTasks({
+          [dataKey]: atribuirStatusTarefas(tarefasSimuladas)
+        });
+      }
+    };
+    
+    carregarTarefas();
   }, []);
 
   const filteredTasks = (tasks[dataKey] || []).filter((task) => {
@@ -243,134 +151,199 @@ export default function TaskScreen() {
       activeOpacity={0.8}
     >
       <View style={styles.taskCard}>
-        <View style={styles.iconContainer}>
+        <View style={styles.taskIcon}>
           {item.status === 'Concluída' ? (
-            <Image source={require('../../icons/concluido.png')} style={{ width: 30, height: 35,tintColor: 'white' }} />
+            <Image source={require('../../icons/concluido.png')} style={styles.taskIconImage} />
           ) : item.status === 'Expirada' ? (
-            <Image source={require('../../icons/expirado.png')} style={{ width: 30, height: 35, tintColor: 'white'}} />
+            <Image source={require('../../icons/expirado.png')} style={styles.taskIconImage} />
           ) : (
-            <Image source={require('../../icons/tarefa.png')} style={{ width: 30, height: 35,tintColor: 'white' }} />
+            <Image source={require('../../icons/tarefa.png')} style={styles.taskIconImage} />
           )}
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={styles.taskInfo}>
           <Text style={styles.taskTitle}>{item.nome}</Text>
           <Text style={styles.taskSubtitle}>{item.status}</Text>
         </View>
         <TouchableOpacity
-          onPress={() => {
+          onPress={(e) => {
+            e.stopPropagation();
             setSelectedTask(item);
             setModalVisible(true);
           }}
         >
-          <Text style={{ fontSize: 42, color: '#D9D9D9' }}>⋮</Text>
+          <Ionicons name="ellipsis-vertical" size={24} color="#D9D9D9" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <>
-      <View style={styles.container}>
-        <View style={styles.contentArea}>
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Procure uma tarefa"
-              placeholderTextColor="#B2E4F9"
-              value={search}
-              onChangeText={setSearch}
-            />
-            <Feather name="search" size={25} color="#B2E4F9" style={styles.searchIcon} />
-          </View>
-
-          <View style={styles.filtroContainer}>
-            {['Concluídas', 'A fazer', 'Expirada'].map((opcao) => (
-              <TouchableOpacity
-                key={opcao}
-                onPress={() => setFiltroSelecionado(opcao)}
-                style={[styles.filtroBotao, filtroSelecionado === opcao && styles.filtroBotaoAtivo]}
-              >
-                <Text
-                  style={[styles.filtroTexto, filtroSelecionado === opcao && styles.filtroTextoAtivo]}
-                >
-                  {opcao}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <FlatList
-            data={filteredTasks}
-            renderItem={renderTask}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 120 }}
-            showsVerticalScrollIndicator={false}
+    <View style={styles.container}>
+      <View style={styles.contentArea}>
+        <View style={styles.searchContainer}>
+          <Feather name="search" size={20} color="#B2E4F9" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Procure uma tarefa"
+            placeholderTextColor="#B2E4F9"
+            value={search}
+            onChangeText={setSearch}
           />
         </View>
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
+
+        <View style={styles.filtroContainer}>
+          {['Concluídas', 'A fazer', 'Expirada'].map((opcao) => (
+            <TouchableOpacity
+              key={opcao}
+              onPress={() => setFiltroSelecionado(opcao)}
+              style={[
+                styles.filtroBotao, 
+                filtroSelecionado === opcao && styles.filtroBotaoAtivo
+              ]}
+            >
+              <Text style={[
+                styles.filtroTexto,
+                filtroSelecionado === opcao && styles.filtroTextoAtivo
+              ]}>
+                {opcao}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <FlatList
+          data={filteredTasks}
+          renderItem={renderTask}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.tasksList}
+        />
+      </View>
+
+      {/* Modal dos três pontos */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={() => setModalVisible(false)}
         >
-          <View style={styles.modalOverlayHome}>
-            <View style={styles.modalPrioridadeHome}>
-              <TouchableOpacity style={styles.opcaoHome} onPress={() => concluirTarefa(selectedTask.id)}>
-                <Text style={styles.opcaoTextoHome}>Concluir</Text>
+          <View style={styles.threeDotsModal}>
+            <TouchableOpacity 
+              style={styles.modalOption}
+              onPress={() => {
+                setModalVisible(false);
+                setShowObservacaoInput(true);
+              }}
+            >
+              <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+              <Text style={styles.modalOptionText}>Concluir</Text>
+            </TouchableOpacity>
+            
+            <View style={styles.modalDivider} />
+            
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('EditarTarefa', { tarefa: selectedTask });
+              }}
+            >
+              <Ionicons name="create" size={20} color="#2196F3" />
+              <Text style={styles.modalOptionText}>Editar</Text>
+            </TouchableOpacity>
+            
+            <View style={styles.modalDivider} />
+            
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => {
+                setModalVisible(false);
+                setConfirmarExcluir(true);
+              }}
+            >
+              <Ionicons name="trash" size={20} color="#F44336" />
+              <Text style={styles.modalOptionText}>Excluir</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Modal de observação */}
+      <Modal
+        visible={showObservacaoInput}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowObservacaoInput(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.observacaoModal}>
+            <Text style={styles.observacaoTitle}>Adicionar Observação</Text>
+            <TextInput
+              style={styles.observacaoInput}
+              placeholder="Digite sua observação..."
+              multiline
+              numberOfLines={4}
+              value={observacaoConclusao}
+              onChangeText={setObservacaoConclusao}
+            />
+            <View style={styles.observacaoButtons}>
+              <TouchableOpacity
+                style={[styles.observacaoButton, styles.cancelButton]}
+                onPress={() => setShowObservacaoInput(false)}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.opcaoHome}
+                style={[styles.observacaoButton, styles.confirmButton]}
                 onPress={() => {
-                  setModalVisible(false);
-                  navigation.navigate('EditarTarefa', { tarefa: selectedTask });
+                  concluirTarefa(selectedTask.id, observacaoConclusao);
+                  setShowObservacaoInput(false);
                 }}
               >
-                <Text style={styles.opcaoTextoHome}>Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.opcaoHome}
-                onPress={() => setConfirmarExcluir(true)}
-              >
-                <Text style={styles.opcaoTextoHome}>Excluir</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelarHome}>Cancelar</Text>
+                <Text style={styles.buttonText}>Confirmar</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-        <Modal
-          visible={confirmarExcluir}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setConfirmarExcluir(false)}
-        >
-          <View style={styles.modalOverlayHome}>
-            <View style={styles.modalPrioridadeHome}>
-              <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 20 }}>
-                Tem certeza que deseja excluir esta tarefa?
-              </Text>
+        </View>
+      </Modal>
+
+      {/* Modal de confirmação de exclusão */}
+      <Modal
+        visible={confirmarExcluir}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setConfirmarExcluir(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmModal}>
+            <Text style={styles.confirmText}>Tem certeza que deseja excluir esta tarefa?</Text>
+            <View style={styles.confirmButtons}>
               <TouchableOpacity
-                style={styles.opcaoHome}
+                style={[styles.confirmButton, styles.deleteButton]}
                 onPress={() => {
-                  setConfirmarExcluir(false);
                   excluirTarefa(selectedTask.id);
+                  setConfirmarExcluir(false);
                 }}
               >
-                <Text style={styles.opcaoTextoHome}>Sim, excluir</Text>
+                <Text style={styles.buttonText}>Excluir</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.opcaoHome}
+                style={[styles.confirmButton, styles.cancelButton]}
                 onPress={() => setConfirmarExcluir(false)}
               >
-                <Text style={styles.opcaoTextoHome}>Cancelar</Text>
+                <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
-      </View>
+        </View>
+      </Modal>
+
       <Navbar />
-    </>
+    </View>
   );
 }
 
@@ -382,79 +355,32 @@ const styles = StyleSheet.create({
   contentArea: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 15,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 30,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    marginBottom: 5,
+    marginBottom: 15,
     marginTop: 45,
+  },
+  searchIcon: {
+    marginRight: 10,
   },
   searchInput: {
     flex: 1,
     height: 40,
     color: '#B2E4F9',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
-  },
-  searchIcon: {
-    marginLeft: 8,
-  },
-  taskSubtitle: {
-    color: '#868E96',
-    fontSize: 14,
-  },
-  taskCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: '#B2E4F9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  taskTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#000',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    width: 200,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-  },
-  modalOption: {
-    paddingVertical: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    color: '#000',
   },
   filtroContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 25,
-    marginTop: 10,
-    
+    marginBottom: 20,
   },
   filtroBotao: {
     flex: 1,
@@ -470,36 +396,152 @@ const styles = StyleSheet.create({
   filtroTexto: {
     color: '#B2E4F9',
     fontWeight: '600',
-    paddingVertical: 3,
+    fontSize: 14,
   },
   filtroTextoAtivo: {
     color: '#fff',
   },
-  modalOverlayHome: {
+  tasksList: {
+    paddingBottom: 100,
+  },
+  taskCard: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  taskIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#B2E4F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  taskIconImage: {
+    width: 30,
+    height: 30,
+    tintColor: 'white',
+  },
+  taskInfo: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: '#00000080',
   },
-  modalPrioridadeHome: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+  taskTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#000',
   },
-  opcaoHome: {
-    paddingVertical: 14,
+  taskSubtitle: {
+    color: '#868E96',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  opcaoTextoHome: {
+  threeDotsModal: {
+    position: 'absolute',
+    right: 20,
+    top: 100,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 10,
+    width: 160,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  modalOptionText: {
+    fontSize: 16,
+    color: '#333',
+    marginLeft: 10,
+  },
+  modalDivider: {
+    height: 1,
+    backgroundColor: '#f0f0f0',
+    marginVertical: 4,
+  },
+  observacaoModal: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+  },
+  observacaoTitle: {
     fontSize: 18,
-    color: '#007AFF',
+    fontWeight: 'bold',
+    marginBottom: 15,
     textAlign: 'center',
   },
-  cancelarHome: {
-    fontSize: 18,
+  observacaoInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  observacaoButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  observacaoButton: {
+    borderRadius: 8,
     paddingVertical: 10,
-    color: 'red',
+    paddingHorizontal: 20,
+    minWidth: '45%',
+    alignItems: 'center',
+  },
+  confirmModal: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+  },
+  confirmText: {
+    fontSize: 16,
     textAlign: 'center',
-    marginTop: 10,
+    marginBottom: 20,
+  },
+  confirmButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  confirmButton: {
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    minWidth: '45%',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    backgroundColor: '#FFEBEE',
+  },
+  cancelButton: {
+    backgroundColor: '#E3F2FD',
+  },
+  buttonText: {
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

@@ -6,13 +6,18 @@ import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
+// Adicione a constante da URL do backend
+const API_URL = 'https://taskgreen.onrender.com';
+
 export default function CriarTarefa() {
   const navigation = useNavigation();
   const [nome, setNome] = useState('');
   const [dataInicio, setDataInicio] = useState(null);
-  const [dataEntrega, setDataEntrega] = useState(null);
+  // Remova o estado dataEntrega
+  // const [dataEntrega, setDataEntrega] = useState(null);
   const [showInicioPicker, setShowInicioPicker] = useState(false);
-  const [showEntregaPicker, setShowEntregaPicker] = useState(false);
+  // Remova o estado showEntregaPicker
+  // const [showEntregaPicker, setShowEntregaPicker] = useState(false);
   const [horaInicio, setHoraInicio] = useState(null);
   const [horaTermino, setHoraTermino] = useState(null);
   const [showHoraInicio, setShowHoraInicio] = useState(false);
@@ -21,7 +26,8 @@ export default function CriarTarefa() {
   const [mostrarPrioridades, setMostrarPrioridades] = useState(false);
   const [descricao, setDescricao] = useState('');
   const [imagemSelecionada, setImagemSelecionada] = useState(null);
-  
+  const [mensagem, setMensagem] = useState('');
+  const [tipoMensagem, setTipoMensagem] = useState(''); // 'erro' ou 'sucesso'
 
   const escolherImagem = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -43,29 +49,48 @@ export default function CriarTarefa() {
   };
 
   const criarTarefa = async () => {
-    if (!nome || !dataInicio || !dataEntrega || !horaInicio || !horaTermino || !prioridade) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+    if (!nome || !dataInicio || !horaInicio || !horaTermino || !prioridade) {
+      setMensagem('Por favor, preencha todos os campos obrigatórios.');
+      setTipoMensagem('erro');
       return;
     }
   
+    const form = new FormData();
+    form.append('nome', nome);
+    form.append('dataInicio', dataInicio.toISOString().split('T')[0]);
+    // Remova dataEntrega da validação
+    // form.append('dataEntrega', dataEntrega.toISOString().split('T')[0]);
+    form.append('horarioInicio', horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+    form.append('horarioTermino', horaTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+    form.append('prioridade', prioridade);
+    form.append('descricao', descricao);
+    form.append('concluida', 'false');
+  
+    if (imagemSelecionada) {
+      const filename = imagemSelecionada.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
+      form.append('imagem', {
+        uri: imagemSelecionada,
+        name: filename,
+        type,
+      });
+    }
+  
     try {
-      const tarefa = {
-        nome,
-        dataInicio: dataInicio.toISOString(),
-        dataEntrega: dataEntrega.toISOString(),
-        horaInicio: horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-        horaTermino: horaTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-        prioridade,
-        descricao,
-        imagem: imagemSelecionada,
-      };
-  
-      await axios.post('http://localhost:8080/tarefas', tarefa); 
-  
-      alert('Tarefa criada com sucesso!');
-      navigation.goBack();
+      await axios.post(`${API_URL}/api/tarefas`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setMensagem('Tarefa criada com sucesso!');
+      setTipoMensagem('sucesso');
+      setTimeout(() => {
+        setMensagem('');
+        navigation.navigate('Home');
+      }, 1500);
     } catch (error) {
-      alert('Erro ao criar tarefa');
+      console.log('Erro ao criar tarefa:', error.response?.data || error.message);
+      setMensagem('Erro ao criar tarefa');
+      setTipoMensagem('erro');
     }
   };
   
@@ -100,6 +125,19 @@ export default function CriarTarefa() {
           <View style={{ width: 24 }} />
         </View>
 
+        {/* Mensagem de erro ou sucesso DENTRO do cardSuperior */}
+        {/* {mensagem !== '' && (
+          <View
+            style={[
+              styles.mensagemBox,
+              tipoMensagem === 'erro' ? styles.mensagemErro : styles.mensagemSucesso,
+              { alignSelf: 'stretch', marginTop: 12, marginBottom: 8 }
+            ]}
+          >
+            <Text style={styles.mensagemTexto}>{mensagem}</Text>
+          </View>
+        )} */}
+
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
@@ -109,17 +147,17 @@ export default function CriarTarefa() {
           onChangeText={setNome}
         />
 
-        <Text style={styles.label}>Data de início</Text>
+        <Text style={styles.label}>Data</Text>
         <TouchableOpacity onPress={() => setShowInicioPicker(true)}>
           <Text style={styles.dateText}>{formatarData(dataInicio) || 'Selecionar data'}</Text>
         </TouchableOpacity>
-
-        
-
+        {/* Remova o campo Data de entrega */}
+        {/* 
         <Text style={styles.label}>Data de entrega</Text>
         <TouchableOpacity onPress={() => setShowEntregaPicker(true)}>
           <Text style={styles.dateText}>{formatarData(dataEntrega) || 'Selecionar data'}</Text>
         </TouchableOpacity>
+        */}
       </View>
 
       <View style={styles.conteudo}>
@@ -136,7 +174,16 @@ export default function CriarTarefa() {
 
           <TouchableOpacity onPress={() => setMostrarPrioridades(true)} style={styles.timeBox}>
             <Text style={styles.label2}>Prioridade</Text>
-            <Text style={styles.valor}>{formatarPrioridade(prioridade)}</Text>
+            <Text
+              style={[
+                styles.valor,
+                prioridade === 'alta' && { color: '#E57373', fontWeight: 'bold' },
+                prioridade === 'media' && { color: '#FFD54F', fontWeight: 'bold' },
+                prioridade === 'baixa' && { color: '#81C784', fontWeight: 'bold' }
+              ]}
+            >
+              {formatarPrioridade(prioridade)}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -201,6 +248,8 @@ export default function CriarTarefa() {
           backgroundColor: '#B2E4F9',
         }}
       />
+      {/* Remova o segundo DateTimePickerModal de dataEntrega */}
+      {/* 
       <DateTimePickerModal
         isVisible={showEntregaPicker}
         mode="date"
@@ -216,6 +265,7 @@ export default function CriarTarefa() {
           backgroundColor: '#B2E4F9',
         }}
       />
+      */}
       <DateTimePickerModal
         isVisible={showHoraInicio}
         mode="time"
@@ -243,22 +293,95 @@ export default function CriarTarefa() {
         onRequestClose={() => setMostrarPrioridades(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalPrioridade}>
-            <TouchableOpacity onPress={() => { setPrioridade('alta'); setMostrarPrioridades(false); }}>
-              <Text style={styles.opcao}>Alta</Text>
+          <View style={styles.modalPrioridadeCustom}>
+            <Text style={styles.modalTitulo}>Selecione a prioridade</Text>
+            <TouchableOpacity
+              style={styles.opcaoPrioridade}
+              onPress={() => { setPrioridade('alta'); setMostrarPrioridades(false); }}
+            >
+              <Text
+                style={[
+                  styles.opcao,
+                  { color: '#E57373', fontWeight: 'bold' },
+                  prioridade === 'alta' && { textDecorationLine: 'underline' }
+                ]}
+              >
+                Alta
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setPrioridade('media'); setMostrarPrioridades(false); }}>
-              <Text style={styles.opcao}>Média</Text>
+            <TouchableOpacity
+              style={styles.opcaoPrioridade}
+              onPress={() => { setPrioridade('media'); setMostrarPrioridades(false); }}
+            >
+              <Text
+                style={[
+                  styles.opcao,
+                  { color: '#FFD54F', fontWeight: 'bold' },
+                  prioridade === 'media' && { textDecorationLine: 'underline' }
+                ]}
+              >
+                Média
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => { setPrioridade('baixa'); setMostrarPrioridades(false); }}>
-              <Text style={styles.opcao}>Baixa</Text>
+            <TouchableOpacity
+              style={styles.opcaoPrioridade}
+              onPress={() => { setPrioridade('baixa'); setMostrarPrioridades(false); }}
+            >
+              <Text
+                style={[
+                  styles.opcao,
+                  { color: '#81C784', fontWeight: 'bold' },
+                  prioridade === 'baixa' && { textDecorationLine: 'underline' }
+                ]}
+              >
+                Baixa
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setMostrarPrioridades(false)}>
-              <Text style={styles.cancelar}>Cancelar</Text>
+            <TouchableOpacity
+              style={[styles.cancelarPrioridade, { backgroundColor: '#D3D3D3' }]}
+              onPress={() => setMostrarPrioridades(false)}
+            >
+              <Text style={[styles.cancelar, { color: '#222' }]}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      {mensagem !== '' && (
+        <Modal
+          visible={!!mensagem}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setMensagem('')}
+        >
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#00000080'
+          }}>
+            <View style={[
+              styles.mensagemBox,
+              tipoMensagem === 'erro' ? styles.mensagemErro : styles.mensagemSucesso,
+              { minWidth: 220, maxWidth: '80%' }
+            ]}>
+              <Text style={styles.mensagemTexto}>{mensagem}</Text>
+              <TouchableOpacity
+                style={{
+                  marginTop: 18,
+                  backgroundColor: tipoMensagem === 'erro' ? '#ff5c5c' : '#4CAF50',
+                  paddingVertical: 8,
+                  paddingHorizontal: 22,
+                  borderRadius: 8,
+                }}
+                onPress={() => setMensagem('')}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 }
@@ -274,6 +397,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
+    // Ajuste o paddingBottom para dar mais espaço após remover o campo
+    paddingBottom: 30,
   },
   conteudo: {
     padding: 20,
@@ -309,7 +434,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   dateText: {
-    marginBottom: 20,
+    marginBottom: 0, // Reduza o espaço após o campo de data
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#fff',
@@ -332,11 +457,15 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center', // centraliza horizontalmente
+    alignItems: 'center',     // centraliza verticalmente
+    marginTop: 10,            // opcional: espaço acima
+    marginBottom: 10,         // opcional: espaço abaixo
   },
   timeBox: {
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 8,      // aumenta o espaçamento lateral
+    alignItems: 'center',     // centraliza o conteúdo dentro de cada box
   },
   valor: {
     color: '#000',
@@ -359,24 +488,51 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: '#00000080',
   },
-  modalPrioridade: {
+  modalPrioridadeCustom: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 30,
+    paddingBottom: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalTitulo: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 18,
+    textAlign: 'center',
+  },
+  opcaoPrioridade: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 10,
+    alignItems: 'center',
+    // Removido backgroundColor para não ter cor de fundo
   },
   opcao: {
     fontSize: 18,
-    paddingVertical: 10,
-    color: '#007AFF',
     textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  cancelarPrioridade: {
+    marginTop: 10,
+    width: '100%',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
   },
   cancelar: {
     fontSize: 18,
-    paddingVertical: 10,
-    color: 'red',
+    color: 'red', // será sobrescrito para preto no botão cancelar
     textAlign: 'center',
-    marginTop: 10,
+    fontWeight: 'bold',
   },
   imagemIcone: {
     width: 70,
@@ -430,6 +586,29 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+    textAlign: 'center',
+  },
+  mensagemBox: {
+    marginTop: 20,
+    marginHorizontal: 20,
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  mensagemErro: {
+    backgroundColor: '#ffe5e5',
+    borderColor: '#ff5c5c',
+    borderWidth: 1,
+  },
+  mensagemSucesso: {
+    backgroundColor: '#e5ffe5',
+    borderColor: '#4CAF50',
+    borderWidth: 1,
+  },
+  mensagemTexto: {
+    color: '#222',
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   

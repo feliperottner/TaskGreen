@@ -2,52 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import Navbar from '../navbar';
-import { Ionicons } from '@expo/vector-icons';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  FlatList, 
-  Modal, 
-  StyleSheet, 
+import { Ionicons } from '@expo/vector-icons'; 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+  StyleSheet,
   Image,
-  TextInput
+  TouchableWithoutFeedback,
+  ScrollView
 } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import axios from 'axios';
-import Navbar from '../navbar';
-import { Ionicons } from '@expo/vector-icons';
 
-// Tarefas simuladas para teste
-const tarefasSimuladas = [
-  {
-    id: '1',
-    nome: 'Reunião com equipe',
-    dataInicio: new Date().toISOString(),
-    dataEntrega: new Date().toISOString(),
-    horaInicio: '09:00',
-    horaTermino: '10:30',
-    prioridade: 'alta',
-    descricao: 'Discutir os próximos passos do projeto',
-    status: 'A fazer',
-    imagem: null
-  },
-  {
-    id: '2',
-    nome: 'Atualizar documentação',
-    dataInicio: new Date().toISOString(),
-    dataEntrega: new Date(Date.now() + 86400000).toISOString(), // Amanhã
-    horaInicio: '14:00',
-    horaTermino: '15:30',
-    prioridade: 'media',
-    descricao: 'Atualizar os documentos técnicos do sistema',
-    status: 'A fazer',
-    imagem: null
-  }
-];
+const API_URL = 'https://taskgreen.onrender.com';
 
 export default function TaskScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -56,20 +27,92 @@ export default function TaskScreen() {
   const [weekOffset, setWeekOffset] = useState(0);
   const [tasks, setTasks] = useState({});
   const [confirmarExcluir, setConfirmarExcluir] = useState(false);
-  const [observacaoConclusao, setObservacaoConclusao] = useState('');
-  const [showObservacaoInput, setShowObservacaoInput] = useState(false);
+  const [radioMarcado, setRadioMarcado] = useState(false);
 
-  // Funções existentes (atribuirStatusTarefas, concluirTarefa, excluirTarefa, agruparPorData)
-  // ... (mantenha as mesmas funções que já tinha)
+  const hoje = new Date();
+  const horaInicio = '09:00';
+  const horaTermino = '10:00';
+
+  
+  function atribuirStatusTarefas(tarefas) {
+    const hoje = new Date();
+    return tarefas.map((tarefa) => {
+      const dataEntrega = new Date(tarefa.dataEntrega);
+      let status = tarefa.status;
+      if (status === 'Concluída') {
+      } else if (dataEntrega < hoje.setHours(0,0,0,0)) {
+        status = 'Expirada';
+      } else {
+        status = 'A fazer';
+      }
+      return { ...tarefa, status };
+    });
+  }
+
+  
+  async function concluirTarefa(id) {
+    try {
+      const form = new FormData();
+      form.append('concluida', 'true');
+      await axios.patch(`${API_URL}/api/tarefas/${id}/status?concluida=true`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setTasks((prevTasks) => {
+        const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
+          tarefa.id === id ? { ...tarefa, status: 'Concluída', concluida: true } : tarefa
+        );
+        return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
+      });
+    } catch (error) {
+      // Trate o erro se quiser
+    }
+    setModalVisible(false);
+  }
+
+  async function excluirTarefa(id) {
+    try {
+      await axios.delete(`${API_URL}/api/tarefas/${id}`); // DELETE correto
+      setTasks((prevTasks) => {
+        const novasTarefas = (prevTasks[selectedDateKey] || []).filter((tarefa) => tarefa.id !== id);
+        return { ...prevTasks, [selectedDateKey]: novasTarefas };
+      });
+    } catch (error) {
+      // Trate o erro se quiser
+    }
+    setModalVisible(false);
+  }
+
+  // Função para agrupar tarefas por data
+  const agruparPorData = (tarefas) => {
+    return tarefas.reduce((acc, tarefa) => {
+      const dataKey = tarefa.dataInicio.split('T')[0];
+      if (!acc[dataKey]) acc[dataKey] = [];
+      acc[dataKey].push(tarefa);
+      return acc;
+    }, {});
+  };
+
+  // Buscar tarefas da API
+  const fetchTarefas = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/tarefas`); // GET correto
+      const tarefas = response.data && response.data.length > 0
+        ? response.data
+        : tarefasSimuladas;
+      setTasks(agruparPorData(atribuirStatusTarefas(tarefas)));
+    } catch (error) {
+      setTasks(agruparPorData(atribuirStatusTarefas(tarefasSimuladas)));
+    }
+  };
 
   const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   const getWeekDays = (offset = 0) => {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + (offset * 7));
-    
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + offset * 7);
+
     const days = Array.from({ length: 7 }).map((_, i) => {
-      const date = new Date(startDate);
+      const date = new Date(startOfWeek);
       date.setDate(date.getDate() + i);
       return {
         day: diasDaSemana[date.getDay()],
@@ -79,16 +122,20 @@ export default function TaskScreen() {
     });
 
     setWeekDays(days);
-    
-    const monthName = days[0].fullDate.toLocaleString('pt-BR', { month: 'short' });
+
+    const monthName = new Date(days[0].fullDate).toLocaleString('pt-BR', { month: 'short' });
     const year = new Date(days[0].fullDate).getFullYear();
     setCurrentMonthYear(`${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`);
+
+    if (!days.some(d => d.fullDate === selectedDate.toISOString().split('T')[0])) {
+      setSelectedDate(new Date(days[0].fullDate));
+    }
   };
 
   useEffect(() => {
     getWeekDays(weekOffset);
   }, [weekOffset]);
-
+  
   useFocusEffect(
     React.useCallback(() => {
       fetchTarefas();
@@ -97,6 +144,7 @@ export default function TaskScreen() {
 
   const selectedDateKey = selectedDate.toISOString().split('T')[0];
 
+  // Altere o renderTask para mostrar o status
   const renderTask = ({ item }) => (
     <TouchableOpacity
       onPress={() => {
@@ -104,37 +152,42 @@ export default function TaskScreen() {
           nome: item.nome,
           dataInicio: item.dataInicio,
           dataEntrega: item.dataEntrega,
-          horaInicio: item.horaInicio,
-          horaTermino: item.horaTermino,
+          horarioInicio: item.horarioInicio, // <-- nome correto!
+          horarioTermino: item.horarioTermino, // <-- nome correto!
           prioridade: item.prioridade,
           descricao: item.descricao,
-          imagem: item.imagem,
+          imagem: item.imagemUrl
+  ? item.imagemUrl.startsWith('http')
+    ? item.imagemUrl
+    : `${API_URL}/api/tarefas/uploads/${item.imagemUrl}`
+  : null,
+          status: item.concluida ? 'Concluída' : item.status,
         });
       }}
       activeOpacity={0.8}
     >
       <View style={styles.taskCard}>
         <View style={styles.taskIcon}>
-          {item.status === 'Concluída' ? (
-            <Image source={require('../../icons/concluido.png')} style={styles.taskIconImage} />
+          {item.concluida ? (
+            <Image source={require('../../icons/concluido.png')} style={{ width: 30, height: 35, tintColor: 'white' }} />
           ) : item.status === 'Expirada' ? (
-            <Image source={require('../../icons/expirado.png')} style={styles.taskIconImage} />
+            <Image source={require('../../icons/expirado.png')} style={{ width: 30, height: 35, tintColor: 'white'}} />
           ) : (
-            <Image source={require('../../icons/tarefa.png')} style={styles.taskIconImage} />
+            <Image source={require('../../icons/tarefa.png')} style={{ width: 30, height: 35, tintColor: 'white' }} />
           )}
         </View>
-        <View style={styles.taskInfo}>
+        <View style={{ flex: 1 }}>
           <Text style={styles.taskTitle}>{item.nome}</Text>
-          <Text style={styles.taskSubtitle}>{item.status}</Text>
+          <Text style={styles.taskSubtitle}>{item.concluida ? 'Concluída' : item.status}</Text>
         </View>
         <TouchableOpacity
-          onPress={(e) => {
-            e.stopPropagation();
+          onPress={() => {
             setSelectedTask(item);
             setModalVisible(true);
           }}
+          style={{ justifyContent: 'center', alignItems: 'flex-start', paddingLeft: 0, minWidth: 32 }}
         >
-          <Ionicons name="ellipsis-vertical" size={24} color="#D9D9D9" />
+          <Text style={{ fontSize: 32, color: '#888', lineHeight: 32, textAlign: 'left' }}>⋮</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -158,27 +211,28 @@ export default function TaskScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.calendarContainer}>
-          <FlatList
-            horizontal
-            data={weekDays}
-            keyExtractor={(item) => item.fullDate}
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => {
+        <View style={styles.dayList}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {weekDays.map((item) => {
               const isActive = selectedDate.toISOString().split('T')[0] === item.fullDate;
               return (
-                <TouchableOpacity 
-                  onPress={() => setSelectedDate(new Date(item.fullDate))}
-                  style={styles.dayButton}
-                >
+                <TouchableOpacity key={item.fullDate} onPress={() => setSelectedDate(new Date(item.fullDate))}>
                   <View style={[styles.dayItem, isActive && styles.activeDay]}>
-                    <Text style={[styles.dayText, isActive && styles.activeDayText]}>{item.day}</Text>
+                    <Text
+  style={[
+    styles.dayText,
+    item.fullDate === new Date().toISOString().split('T')[0] && { color: '#FF8A80' }, // vermelho para o dia atual
+    isActive && styles.activeDayText,
+  ]}
+>
+  {item.day}
+</Text>
                     <Text style={[styles.dateText, isActive && styles.activeDateText]}>{item.date}</Text>
                   </View>
                 </TouchableOpacity>
               );
-            }}
-          />
+            })}
+          </ScrollView>
         </View>
       </View>
 
@@ -188,104 +242,116 @@ export default function TaskScreen() {
           data={tasks[selectedDateKey] || []}
           renderItem={renderTask}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.tasksList}
+          contentContainerStyle={{ paddingBottom: 120 }} 
           showsVerticalScrollIndicator={false}
         />
       </View>
 
-      {/* Modal dos três pontos */}
       <Modal
         visible={modalVisible}
         transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1}
-          onPress={() => setModalVisible(false)}
-        >
-          <View style={styles.threeDotsModal}>
-            <TouchableOpacity 
-              style={styles.modalOption}
-              onPress={() => {
-                setModalVisible(false);
-                setShowObservacaoInput(true);
-              }}
-            >
-              <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-              <Text style={styles.modalOptionText}>Concluir</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.modalDivider} />
-            
-            <TouchableOpacity
-              style={styles.modalOption}
-              onPress={() => {
-                setModalVisible(false);
-                navigation.navigate('EditarTarefa', { tarefa: selectedTask });
-              }}
-            >
-              <Ionicons name="create" size={20} color="#2196F3" />
-              <Text style={styles.modalOptionText}>Editar</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.modalDivider} />
-            
-            <TouchableOpacity
-              style={styles.modalOption}
-              onPress={() => {
-                setModalVisible(false);
-                setConfirmarExcluir(true);
-              }}
-            >
-              <Ionicons name="trash" size={20} color="#F44336" />
-              <Text style={styles.modalOptionText}>Excluir</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
-      {/* Modal de observação */}
-      <Modal
-        visible={showObservacaoInput}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowObservacaoInput(false)}
-      >
         <View style={styles.modalOverlay}>
-          <View style={styles.observacaoModal}>
-            <Text style={styles.observacaoTitle}>Adicionar Observação</Text>
-            <TextInput
-              style={styles.observacaoInput}
-              placeholder="Digite sua observação..."
-              multiline
-              numberOfLines={4}
-              value={observacaoConclusao}
-              onChangeText={setObservacaoConclusao}
-            />
-            <View style={styles.observacaoButtons}>
-              <TouchableOpacity
-                style={[styles.observacaoButton, styles.cancelButton]}
-                onPress={() => setShowObservacaoInput(false)}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.observacaoButton, styles.confirmButton]}
-                onPress={() => {
-                  concluirTarefa(selectedTask.id, observacaoConclusao);
-                  setShowObservacaoInput(false);
-                }}
-              >
-                <Text style={styles.buttonText}>Confirmar</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.modalPrioridade}>
+            <TouchableOpacity
+  style={[styles.opcao, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+  onPress={async () => {
+    if (selectedTask?.concluida) {
+      // Desmarcar: marcar como "A fazer"
+      try {
+        const form = new FormData();
+        form.append('concluida', 'false');
+        await axios.patch(`${API_URL}/api/tarefas/${selectedTask.id}/status?concluida=false`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setTasks((prevTasks) => {
+          const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
+            tarefa.id === selectedTask.id
+              ? { ...tarefa, status: 'A fazer', concluida: false }
+              : tarefa
+          );
+          return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
+        });
+      } catch (error) {}
+    } else {
+      // Marcar como concluída
+      try {
+        const form = new FormData();
+        form.append('concluida', 'true');
+        await axios.patch(`${API_URL}/api/tarefas/${selectedTask.id}/status?concluida=true`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setTasks((prevTasks) => {
+          const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
+            tarefa.id === selectedTask.id
+              ? { ...tarefa, status: 'Concluída', concluida: true }
+              : tarefa
+          );
+          return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
+        });
+      } catch (error) {}
+    }
+    setModalVisible(false);
+  }}
+  activeOpacity={0.7}
+>
+  <View style={{
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  }}>
+    {selectedTask?.concluida ? (
+      <View style={{
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: '#4CAF50',
+      }} />
+    ) : null}
+  </View>
+  <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Concluir</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={[styles.opcao, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+  onPress={() => {
+    setModalVisible(false);
+    navigation.navigate('EditarTarefa', { tarefa: selectedTask });
+  }}
+>
+  <Ionicons name="pencil" size={20} color="#7EC8E3" style={{ marginRight: 10 }} />
+  <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Editar</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={[styles.opcao, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+  onPress={() => setConfirmarExcluir(true)}
+>
+  <Ionicons name="trash" size={20} color="#FF8A80" style={{ marginRight: 10 }} />
+  <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Excluir</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={{
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: '#D3D3D3',
+    width: '100%',
+    paddingVertical: 12,
+    borderRadius: 12,
+  }}
+  onPress={() => setModalVisible(false)}
+>
+  <Text style={{ color: '#222', fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>Cancelar</Text>
+</TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Modal de confirmação de exclusão */}
       <Modal
         visible={confirmarExcluir}
         transparent
@@ -293,33 +359,47 @@ export default function TaskScreen() {
         onRequestClose={() => setConfirmarExcluir(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.confirmModal}>
-            <Text style={styles.confirmText}>Tem certeza que deseja excluir esta tarefa?</Text>
-            <View style={styles.confirmButtons}>
-              <TouchableOpacity
-                style={[styles.confirmButton, styles.deleteButton]}
-                onPress={() => {
-                  excluirTarefa(selectedTask.id);
-                  setConfirmarExcluir(false);
-                }}
-              >
-                <Text style={styles.buttonText}>Excluir</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.confirmButton, styles.cancelButton]}
-                onPress={() => setConfirmarExcluir(false)}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.modalPrioridade}>
+            <Text style={{ fontSize: 18, textAlign: 'center', marginBottom: 20 }}>
+              Tem certeza que deseja excluir esta tarefa?
+            </Text>
+            <TouchableOpacity
+  style={{
+    alignItems: 'center',
+    backgroundColor: '#B3D9FF',
+    width: '100%',
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  }}
+  onPress={() => {
+    setConfirmarExcluir(false);
+    excluirTarefa(selectedTask.id);
+  }}
+>
+  <Text style={{ color: '#222', fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>Sim</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={{
+    alignItems: 'center',
+    backgroundColor: '#D3D3D3',
+    width: '100%',
+    paddingVertical: 12,
+    borderRadius: 12,
+  }}
+  onPress={() => setConfirmarExcluir(false)}
+>
+  <Text style={{ color: '#222', fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>Cancelar</Text>
+</TouchableOpacity>
           </View>
         </View>
       </Modal>
-
       <Navbar />
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -330,19 +410,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: 40,
     paddingHorizontal: 20,
-    paddingBottom: 10,
+    paddingBottom: 0,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: '#DEE2E6',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
   },
+  contentArea: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 30,
   },
   logo: {
     width: 30,
@@ -350,7 +438,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   appTitle: {
-    fontSize: 28,
+    fontSize: 35,
     fontWeight: 'bold',
     color: '#B2E4F9',
   },
@@ -358,71 +446,75 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 10,
   },
   month: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     color: '#000',
   },
   addTaskBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#B2E4F9',
+    width: 100,
     paddingVertical: 8,
-    paddingHorizontal: 15,
     borderRadius: 20,
   },
   addTaskText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
   },
-  calendarContainer: {
-    marginVertical: 10,
-  },
-  dayButton: {
-    marginHorizontal: 4,
+  dayList: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    paddingVertical: 5,
+    // Removido justifyContent para permitir scroll
   },
   dayItem: {
-    width: 48,
-    height: 64,
+    width: 55,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
     borderRadius: 12,
+    marginHorizontal: 3,
+    backgroundColor: '#F6FAFF',
   },
   activeDay: {
     backgroundColor: '#B2E4F9',
+    borderRadius: 12,
+    height: 70,
+    shadowColor: '#B2E4F9',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
   },
   dayText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#868E96',
-    marginBottom: 4,
-    textAlign: 'center',
+    marginBottom: 6,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
+  dateText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#212529',
   },
   activeDayText: {
     color: '#fff',
   },
-  dateText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#212529',
-    textAlign: 'center',
-  },
   activeDateText: {
     color: '#fff',
   },
-  contentArea: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 15,
-  },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 25,
     fontWeight: 'bold',
     color: '#212529',
-    marginBottom: 15,
-  },
-  tasksList: {
-    paddingBottom: 100,
+    marginBottom: 20,
+    marginTop: 10,
   },
   taskCard: {
     backgroundColor: '#FFFFFF',
@@ -431,11 +523,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   taskIcon: {
     width: 50,
@@ -446,14 +533,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
-  taskIconImage: {
-    width: 30,
-    height: 30,
-    tintColor: 'white',
-  },
-  taskInfo: {
-    flex: 1,
-  },
   taskTitle: {
     fontWeight: 'bold',
     fontSize: 16,
@@ -461,107 +540,32 @@ const styles = StyleSheet.create({
   },
   taskSubtitle: {
     color: '#868E96',
-    fontSize: 14,
-    marginTop: 2,
+    fontSize: 12,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    backgroundColor: '#00000080',
   },
-  threeDotsModal: {
-    position: 'absolute',
-    right: 20,
-    top: 100,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 10,
-    width: 160,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  modalOptionText: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 10,
-  },
-  modalDivider: {
-    height: 1,
-    backgroundColor: '#f0f0f0',
-    marginVertical: 4,
-  },
-  observacaoModal: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 12,
+  modalPrioridade: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     padding: 20,
   },
-  observacaoTitle: {
+  opcao: {
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  opcaoTexto: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
     textAlign: 'center',
   },
-  observacaoInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  observacaoButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  observacaoButton: {
-    borderRadius: 8,
+  cancelar: {
+    fontSize: 18,
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    minWidth: '45%',
-    alignItems: 'center',
-  },
-  confirmModal: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-  },
-  confirmText: {
-    fontSize: 16,
+    color: 'red',
     textAlign: 'center',
-    marginBottom: 20,
-  },
-  confirmButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  confirmButton: {
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    minWidth: '45%',
-    alignItems: 'center',
-  },
-  deleteButton: {
-    backgroundColor: '#FFEBEE',
-  },
-  cancelButton: {
-    backgroundColor: '#E3F2FD',
-  },
-  buttonText: {
-    fontWeight: 'bold',
-    fontSize: 16,
+    marginTop: 10,
   },
 });

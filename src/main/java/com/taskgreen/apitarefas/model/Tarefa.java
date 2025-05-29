@@ -8,35 +8,52 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+// Define que esta classe é um documento MongoDB que será armazenado na coleção "tarefas"
 @Document(collection = "tarefas")
 public class Tarefa {
 
+    // Campo que representa o ID único do documento no MongoDB
+    // A anotação @Id indica que este é o campo identificador principal
     @Id
     private String id;
 
+    // Nome da tarefa - campo obrigatório e indexado para melhor performance em buscas
+    // @NotBlank valida que o campo não pode ser nulo ou vazio
+    // @Indexed cria um índice no banco de dados para este campo
     @NotBlank(message = "O nome da tarefa é obrigatório.")
     @Indexed
     private String nome;
 
+    // Data de início da tarefa - campo obrigatório
+    // @NotNull valida que o campo não pode ser nulo
     @NotNull(message = "A data de início é obrigatória.")
     private LocalDate dataInicio;
 
-    @NotNull(message = "A data de entrega é obrigatória.")
-    @Indexed
-    private LocalDate dataEntrega;
-
+    // Horário de início da tarefa (opcional)
     private LocalTime horarioInicio;
+
+    // Horário de término da tarefa (opcional)
     private LocalTime horarioTermino;
 
+    // Prioridade da tarefa - campo obrigatório
+    // @NotBlank valida que o campo não pode ser nulo ou vazio
     @NotBlank(message = "A prioridade é obrigatória.")
     private String prioridade;
 
+    // Descrição detalhada da tarefa (opcional)
     private String descricao;
+
+    // Status de conclusão da tarefa - inicia como false por padrão
     private boolean concluida = false;
+
+    // Nome do arquivo de imagem associado à tarefa (opcional)
     private String imagemNome;
+
+    // URL da imagem associada à tarefa (opcional)
     private String imagemUrl;
 
-    // Getters e Setters
+    // Métodos Getters e Setters para todos os campos
+
     public String getId() {
         return id;
     }
@@ -59,14 +76,6 @@ public class Tarefa {
 
     public void setDataInicio(LocalDate dataInicio) {
         this.dataInicio = dataInicio;
-    }
-
-    public LocalDate getDataEntrega() {
-        return dataEntrega;
-    }
-
-    public void setDataEntrega(LocalDate dataEntrega) {
-        this.dataEntrega = dataEntrega;
     }
 
     public LocalTime getHorarioInicio() {

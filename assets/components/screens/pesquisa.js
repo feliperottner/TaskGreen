@@ -33,6 +33,8 @@ export default function TaskScreen() {
   const [tasks, setTasks] = useState({});
   const [filtroSelecionado, setFiltroSelecionado] = useState('A fazer');
    const [confirmarExcluir, setConfirmarExcluir] = useState(false);
+   const [mensagem, setMensagem] = useState('');
+const [tipoMensagem, setTipoMensagem] = useState(''); // 'erro' ou 'sucesso'
 
   function atribuirStatusTarefas(tarefas) {
     const hoje = new Date();
@@ -73,13 +75,16 @@ export default function TaskScreen() {
 
   async function excluirTarefa(id) {
     try {
-      await axios.delete(`${API_URL}/api/tarefas/${id}`); // DELETE correto
+      await axios.delete(`${API_URL}/api/tarefas/${id}`);
       setTasks((prevTasks) => {
         const novasTarefas = (prevTasks[dataKey] || []).filter((tarefa) => tarefa.id !== id);
         return { ...prevTasks, [dataKey]: novasTarefas };
       });
+      setMensagem('Tarefa excluída com sucesso!');
+      setTipoMensagem('sucesso');
     } catch (error) {
-      // Trate o erro se quiser
+      setMensagem('Erro ao excluir tarefa');
+      setTipoMensagem('erro');
     }
     setModalVisible(false);
   }
@@ -352,6 +357,42 @@ export default function TaskScreen() {
           </View>
         </Modal>
       </View>
+      {/* Modal de mensagem de erro/sucesso centralizado */}
+      {mensagem !== '' && (
+        <Modal
+          visible={!!mensagem}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setMensagem('')}
+        >
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#00000080'
+          }}>
+            <View style={[
+              styles.mensagemBox,
+              tipoMensagem === 'erro' ? styles.mensagemErro : styles.mensagemSucesso,
+              { minWidth: 220, maxWidth: '85%' }
+            ]}>
+              <Text style={styles.mensagemTexto}>{mensagem}</Text>
+              <TouchableOpacity
+                style={{
+                  marginTop: 18,
+                  backgroundColor: tipoMensagem === 'erro' ? '#ff5c5c' : '#4CAF50',
+                  paddingVertical: 8,
+                  paddingHorizontal: 22,
+                  borderRadius: 8,
+                }}
+                onPress={() => setMensagem('')}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
       <Navbar />
     </>
   );
@@ -484,5 +525,28 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: 10,
+  },
+  mensagemBox: {
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    minWidth: 220,
+    maxWidth: '85%',
+  },
+  mensagemErro: {
+    backgroundColor: '#fff6f6',
+  },
+  mensagemSucesso: {
+    backgroundColor: '#eafcf3', // verde pastel suave
+  },
+  mensagemTexto: {
+    color: '#222',
+    fontSize: 17,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 10,
   },
 });

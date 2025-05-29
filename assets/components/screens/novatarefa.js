@@ -589,27 +589,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   mensagemBox: {
-    marginTop: 20,
-    marginHorizontal: 20,
-    padding: 14,
-    borderRadius: 10,
+    paddingVertical: 28,
+    paddingHorizontal: 22,
+    borderRadius: 14,
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    minWidth: 220,
+    maxWidth: '85%',
   },
   mensagemErro: {
-    backgroundColor: '#ffe5e5',
-    borderColor: '#ff5c5c',
-    borderWidth: 1,
+    backgroundColor: '#fff6f6',
   },
   mensagemSucesso: {
-    backgroundColor: '#e5ffe5',
-    borderColor: '#4CAF50',
-    borderWidth: 1,
+    backgroundColor: '#eafcf3', // verde pastel suave
   },
   mensagemTexto: {
     color: '#222',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '500',
     textAlign: 'center',
+    marginBottom: 10,
   },
   
 });

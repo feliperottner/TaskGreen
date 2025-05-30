@@ -1,5 +1,7 @@
 <!-- Imagem do logo (use URL absoluta ou mantenha o arquivo no mesmo diretório do README) -->
-<img src="https://raw.githubusercontent.com/seurepositorio/imagens/main/taskgreen-logo.png" alt="TaskGreen Logo" width="800"/>
+<img src="./img/logo.png" alt="TaskGreen Logo" width="800"/>
+
+
 
 <h1>TaskGreen - Gerenciador Pessoal de Tarefas</h1>
 
@@ -8,8 +10,6 @@
 <p>TaskGreen é um aplicativo mobile multiplataforma desenvolvido com <strong>React Native + Expo</strong>, integrado a uma <strong>API Java Spring Boot</strong> com <strong>MongoDB</strong>. Seu propósito é proporcionar uma ferramenta intuitiva e eficiente para <strong>gerenciar tarefas pessoais</strong>, ajudando os usuários a planejarem o dia a dia e organizar prioridades.</p>
 
 <p>Com foco na simplicidade e produtividade, o app permite <strong>cadastrar</strong>, <strong>editar</strong>, <strong>pesquisar</strong>, <strong>visualizar</strong> e <strong>excluir</strong> tarefas com facilidade.</p>
-
-<p>🔗 Link do Deploy da API: <a href="https://taskgreen.onrender.com">https://taskgreen.onrender.com</a></p>
 
 <h2>🚀 Funcionalidades Principais</h2>
 
@@ -103,7 +103,7 @@
 
 <p>
   🔍 <strong>Interface Swagger UI:</strong><br/>
-  👉 <a href="https://taskgreen.onrender.com/swagger-ui/index.html">https://taskgreen.onrender.com/swagger-documents.html</a><br/>
+  👉 <a href="https://taskgreen.onrender.com/swagger-ui/index.html">https://taskgreen.onrender.com/swagger-ui/index.html</a><br/>
   Esta é a interface bonitona, interativa, onde dá para testar os endpoints direto no navegador.
 </p>
 
@@ -111,6 +111,13 @@
   📄 <strong>JSON da documentação OpenAPI:</strong><br/>
   👉 <a href="https://taskgreen.onrender.com/api-task-docs">https://taskgreen.onrender.com/api-task-docs</a><br/>
   Esse é o raw JSON que descreve todos os endpoints da API. Serve para integrar com ferramentas externas ou gerar clientes de API automaticamente.
+</p>
+
+<h2>🌐 Deploy</h2>
+
+<p>
+  O projeto está hospedado e disponível online:<br/>
+  🔗 <a href="https://taskgreen.onrender.com/api/tarefas">https://taskgreen.onrender.com/api/tarefas</a>
 </p>
 
 <h2>🔧 Como rodar localmente</h2>
@@ -201,7 +208,7 @@ npx expo start
   </tr>
   <tr>
     <td>Estella Beatriz Gutemberg Vilarouca De Sousa</td>
-    <td>_(Link não informado)_</td>
+    <td></td>
   </tr>
 </table>
 

@@ -259,100 +259,106 @@ export default function TaskScreen() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalPrioridade}>
+          <View style={[styles.modalPrioridade, { alignItems: 'flex-start' }]}>
             <TouchableOpacity
-  style={[styles.opcao, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
-  onPress={async () => {
-    if (selectedTask?.concluida) {
-      // Desmarcar: marcar como "A fazer"
-      try {
-        const form = new FormData();
-        form.append('concluida', 'false');
-        await axios.patch(`${API_URL}/api/tarefas/${selectedTask.id}/status?concluida=false`, form, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setTasks((prevTasks) => {
-          const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
-            tarefa.id === selectedTask.id
-              ? { ...tarefa, status: 'A fazer', concluida: false }
-              : tarefa
-          );
-          return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
-        });
-      } catch (error) {}
-    } else {
-      // Marcar como concluída
-      try {
-        const form = new FormData();
-        form.append('concluida', 'true');
-        await axios.patch(`${API_URL}/api/tarefas/${selectedTask.id}/status?concluida=true`, form, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setTasks((prevTasks) => {
-          const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
-            tarefa.id === selectedTask.id
-              ? { ...tarefa, status: 'Concluída', concluida: true }
-              : tarefa
-          );
-          return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
-        });
-      } catch (error) {}
-    }
-    setModalVisible(false);
-  }}
-  activeOpacity={0.7}
->
-  <View style={{
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  }}>
-    {selectedTask?.concluida ? (
-      <View style={{
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: '#4CAF50',
-      }} />
-    ) : null}
-  </View>
-  <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Concluir</Text>
-</TouchableOpacity>
-<TouchableOpacity
-  style={[styles.opcao, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
-  onPress={() => {
-    setModalVisible(false);
-    navigation.navigate('EditarTarefa', { tarefa: selectedTask });
-  }}
->
-  <Ionicons name="pencil" size={20} color="#7EC8E3" style={{ marginRight: 10 }} />
-  <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Editar</Text>
-</TouchableOpacity>
-<TouchableOpacity
-  style={[styles.opcao, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
-  onPress={() => setConfirmarExcluir(true)}
->
-  <Ionicons name="trash" size={20} color="#FF8A80" style={{ marginRight: 10 }} />
-  <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Excluir</Text>
-</TouchableOpacity>
-<TouchableOpacity
-  style={{
-    alignItems: 'center',
-    marginTop: 10,
-    backgroundColor: '#D3D3D3',
-    width: '100%',
-    paddingVertical: 12,
-    borderRadius: 12,
-  }}
-  onPress={() => setModalVisible(false)}
->
-  <Text style={{ color: '#222', fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>Cancelar</Text>
-</TouchableOpacity>
+              style={[
+                styles.opcao,
+                { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }
+              ]}
+              onPress={async () => {
+                if (selectedTask?.concluida) {
+                  // Desmarcar: marcar como "A fazer"
+                  try {
+                    const form = new FormData();
+                    form.append('concluida', 'false');
+                    await axios.patch(`${API_URL}/api/tarefas/${selectedTask.id}/status?concluida=false`, form, {
+                      headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    setTasks((prevTasks) => {
+                      const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
+                        tarefa.id === selectedTask.id
+                          ? { ...tarefa, status: 'A fazer', concluida: false }
+                          : tarefa
+                      );
+                      return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
+                    });
+                  } catch (error) {}
+                } else {
+                  // Marcar como concluída
+                  try {
+                    const form = new FormData();
+                    form.append('concluida', 'true');
+                    await axios.patch(`${API_URL}/api/tarefas/${selectedTask.id}/status?concluida=true`, form, {
+                      headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    setTasks((prevTasks) => {
+                      const novasTarefas = (prevTasks[selectedDateKey] || []).map((tarefa) =>
+                        tarefa.id === selectedTask.id
+                          ? { ...tarefa, status: 'Concluída', concluida: true }
+                          : tarefa
+                      );
+                      return { ...prevTasks, [selectedDateKey]: atribuirStatusTarefas(novasTarefas) };
+                    });
+                  } catch (error) {}
+                }
+                setModalVisible(false);
+              }}
+              activeOpacity={0.7}
+            >
+              {/* Quadrado com borda preta, preenchido só se concluída */}
+              <View style={{
+                width: 22,
+                height: 22,
+                borderRadius: 4,
+                borderWidth: 2,
+                borderColor: '#111',
+                backgroundColor: selectedTask?.concluida ? '#111' : 'transparent',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: 12,
+              }}>
+                {selectedTask?.concluida ? (
+                  <Ionicons name="checkmark" size={16} color="#fff" />
+                ) : null}
+              </View>
+              <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Concluir</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.opcao,
+                { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }
+              ]}
+              onPress={() => {
+                setModalVisible(false);
+                navigation.navigate('EditarTarefa', { tarefa: selectedTask });
+              }}
+            >
+              <Ionicons name="pencil" size={20} color="#111" style={{ marginRight: 10 }} />
+              <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Editar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.opcao,
+                { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }
+              ]}
+              onPress={() => setConfirmarExcluir(true)}
+            >
+              <Ionicons name="trash" size={20} color="#111" style={{ marginRight: 10 }} />
+              <Text style={[styles.opcaoTexto, { color: '#222', fontWeight: 'bold' }]}>Excluir</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignItems: 'center',
+                marginTop: 10,
+                backgroundColor: '#D3D3D3',
+                width: '100%',
+                paddingVertical: 12,
+                borderRadius: 12,
+              }}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={{ color: '#222', fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}>Cancelar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

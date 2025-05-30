@@ -217,9 +217,12 @@ const [tipoMensagem, setTipoMensagem] = useState(''); // 'erro' ou 'sucesso'
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalOverlayHome}>
-            <View style={styles.modalPrioridadeHome}>
+            <View style={[styles.modalPrioridadeHome, { alignItems: 'flex-start' }]}>
               <TouchableOpacity
-                style={[styles.opcaoHome, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+                style={[
+                  styles.opcaoHome,
+                  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }
+                ]}
                 onPress={async () => {
                   if (selectedTask?.concluida) {
                     // Desmarcar: marcar como "A fazer"
@@ -260,42 +263,45 @@ const [tipoMensagem, setTipoMensagem] = useState(''); // 'erro' ou 'sucesso'
                 }}
                 activeOpacity={0.7}
               >
+                {/* Quadrado com borda preta, preenchido só se concluída */}
                 <View style={{
                   width: 22,
                   height: 22,
-                  borderRadius: 11,
+                  borderRadius: 4,
                   borderWidth: 2,
-                  borderColor: '#4CAF50',
+                  borderColor: '#111',
+                  backgroundColor: selectedTask?.concluida ? '#111' : 'transparent',
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginRight: 12,
                 }}>
                   {selectedTask?.concluida ? (
-                    <View style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: 6,
-                      backgroundColor: '#4CAF50',
-                    }} />
+                    <Ionicons name="checkmark" size={16} color="#fff" />
                   ) : null}
                 </View>
                 <Text style={[styles.opcaoTextoHome, { color: '#222', fontWeight: 'bold' }]}>Concluir</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.opcaoHome, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+                style={[
+                  styles.opcaoHome,
+                  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }
+                ]}
                 onPress={() => {
                   setModalVisible(false);
                   navigation.navigate('EditarTarefa', { tarefa: selectedTask });
                 }}
               >
-                <Ionicons name="pencil" size={20} color="#7EC8E3" style={{ marginRight: 10 }} />
+                <Ionicons name="pencil" size={20} color="#111" style={{ marginRight: 10 }} />
                 <Text style={[styles.opcaoTextoHome, { color: '#222', fontWeight: 'bold' }]}>Editar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.opcaoHome, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+                style={[
+                  styles.opcaoHome,
+                  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }
+                ]}
                 onPress={() => setConfirmarExcluir(true)}
               >
-                <Ionicons name="trash" size={20} color="#FF8A80" style={{ marginRight: 10 }} />
+                <Ionicons name="trash" size={20} color="#111" style={{ marginRight: 10 }} />
                 <Text style={[styles.opcaoTextoHome, { color: '#222', fontWeight: 'bold' }]}>Excluir</Text>
               </TouchableOpacity>
               <TouchableOpacity

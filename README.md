@@ -1,9 +1,10 @@
 <!-- Imagem do logo (use URL absoluta ou mantenha o arquivo no mesmo diretório do README) -->
-<img src="./img/logo.png" alt="TaskGreen Logo" width="800"/>
+<div align="center">
+  <img src="./img/logo.png" alt="TaskGreen Logo" width="300" heigt="300"/>
+</div>
 
 
-
-<h1>TaskGreen - Gerenciador Pessoal de Tarefas</h1>
+<h1>O Gerenciador Pessoal de Tarefas</h1>
 
 <h2>💡 Sobre o Projeto</h2>
 
@@ -208,7 +209,7 @@ npx expo start
   </tr>
   <tr>
     <td>Estella Beatriz Gutemberg Vilarouca De Sousa</td>
-    <td></td>
+    <td><a href="https://www.linkedin.com/in/estella-vilarouca-13aa6b368?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">Estella no LinkedIn</a></td>
   </tr>
 </table>
 

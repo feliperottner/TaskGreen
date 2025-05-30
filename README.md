@@ -3,8 +3,22 @@
   <img src="./img/logo.png" alt="TaskGreen Logo" width="300" heigt="300"/>
 </div>
 
+<h2>📑 Sumário</h2>
 
-<h1>O Gerenciador Pessoal de Tarefas</h1>
+<ul>
+  <li><a href="#💡-sobre-o-projeto">💡 Sobre o Projeto</a></li>
+  <li><a href="#🚀-funcionalidades-principais">🚀 Funcionalidades Principais</a></li>
+  <li><a href="#🎨-prototipagem">🎨 Prototipagem</a></li>
+  <li><a href="#🖥️-tecnologias-utilizadas">🖥️ Tecnologias Utilizadas</a></li>
+  <li><a href="#🗂️-estrutura-do-projeto">🗂️ Estrutura do Projeto</a></li>
+  <li><a href="#📄-documentação-da-api">📄 Documentação da API</a></li>
+  <li><a href="#🌐-deploy">🌐 Deploy</a></li>
+  <li><a href="#🔧-como-rodar-localmente">🔧 Como rodar localmente</a></li>
+  <li><a href="#🧑‍💻-equipe">🧑‍💻 Equipe</a></li>
+  <li><a href="#🔗-contato">🔗 Contato</a></li>
+  <li><a href="#✨-diferenciais-do-taskgreen">✨ Diferenciais do TaskGreen</a></li>
+  <li><a href="#📝-licença">📝 Licença</a></li>
+</ul>
 
 <h2>💡 Sobre o Projeto</h2>
 
@@ -24,6 +38,18 @@
   <li>✅ Integração em tempo real com a API.</li>
   <li>✅ Interface moderna e amigável.</li>
 </ul>
+
+<h2>🎨 Prototipagem</h2>
+
+<p>
+  O protótipo do TaskGreen foi desenvolvido de forma colaborativa por toda a equipe.
+</p>
+
+<div align="center">
+  <a href="https://www.figma.com/design/DxmX6RZuyLtmwlSwT33J3Z/Untitled?node-id=0-1&t=hQegNUyjqcYedE24-1" target="_blank">
+    <img src="https://skillicons.dev/icons?i=figma" alt="Abrir protótipo no Figma" width="80" />
+  </a>
+</div>
 
 <h2>🖥️ Tecnologias Utilizadas</h2>
 
@@ -152,14 +178,24 @@ cd taskgreen-api
 git clone https://github.com/seuusuario/taskgreen-mobile.git
 cd taskgreen-mobile
 
-# Instale as dependências
+# Instale o Expo CLI globalmente (caso ainda não tenha)
+npm install -g expo-cli
+
+# Instale as dependências do projeto
 npm install
 
-# Rode o projeto
-npx expo start
+# Instale o React Navigation
+npm install @react-navigation/native
+
+# Instale as dependências nativas do React Navigation
+npx expo install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated
+
+# Inicie o projeto
+npx expo start --tunnel
 </pre>
 
-<p>Abra o <strong>Expo Go</strong> no celular e escaneie o QR code gerado! 🤳</p>
+<p>Abra o <strong>Expo Go</strong> no celular e escaneie o QR code gerado!</p>
+
 
 <h2>🧑‍💻 Equipe</h2>
 
@@ -185,8 +221,6 @@ npx expo start
     <td>Front-end</td>
   </tr>
 </table>
-
-<p><strong>Prototipagem:</strong> realizada em equipe por todos os integrantes.</p>
 
 <h2>🔗 Contato</h2>
 

@@ -3,8 +3,6 @@
   <img src="./img/logo.png" alt="TaskGreen Logo" width="300" heigt="300"/>
 </div>
 
-<h2>📑 Sumário</h2>
-
 ## 📑 Sumário
 
 - [💡 Sobre o Projeto](#💡-sobre-o-projeto)

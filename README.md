@@ -6,19 +6,20 @@
 <h2>📑 Sumário</h2>
 
 <ul>
-  <li><a href="#💡-sobre-o-projeto">💡 Sobre o Projeto</a></li>
-  <li><a href="#🚀-funcionalidades-principais">🚀 Funcionalidades Principais</a></li>
-  <li><a href="#🎨-prototipagem">🎨 Prototipagem</a></li>
-  <li><a href="#🖥️-tecnologias-utilizadas">🖥️ Tecnologias Utilizadas</a></li>
-  <li><a href="#🗂️-estrutura-do-projeto">🗂️ Estrutura do Projeto</a></li>
-  <li><a href="#📄-documentação-da-api">📄 Documentação da API</a></li>
-  <li><a href="#🌐-deploy">🌐 Deploy</a></li>
-  <li><a href="#🔧-como-rodar-localmente">🔧 Como rodar localmente</a></li>
-  <li><a href="#🧑‍💻-equipe">🧑‍💻 Equipe</a></li>
-  <li><a href="#🔗-contato">🔗 Contato</a></li>
-  <li><a href="#✨-diferenciais-do-taskgreen">✨ Diferenciais do TaskGreen</a></li>
-  <li><a href="#📝-licença">📝 Licença</a></li>
+  <li><a href="#sobre-o-projeto">💡 Sobre o Projeto</a></li>
+  <li><a href="#funcionalidades-principais">🚀 Funcionalidades Principais</a></li>
+  <li><a href="#prototipagem">🎨 Prototipagem</a></li>
+  <li><a href="#tecnologias-utilizadas">🖥️ Tecnologias Utilizadas</a></li>
+  <li><a href="#estrutura-do-projeto">🗂️ Estrutura do Projeto</a></li>
+  <li><a href="#documentação-da-api">📄 Documentação da API</a></li>
+  <li><a href="#deploy">🌐 Deploy</a></li>
+  <li><a href="#como-rodar-localmente">🔧 Como rodar localmente</a></li>
+  <li><a href="#equipe">🧑‍💻 Equipe</a></li>
+  <li><a href="#contato">🔗 Contato</a></li>
+  <li><a href="#diferenciais-do-taskgreen">✨ Diferenciais do TaskGreen</a></li>
+  <li><a href="#licença">📝 Licença</a></li>
 </ul>
+
 
 <h2>💡 Sobre o Projeto</h2>
 

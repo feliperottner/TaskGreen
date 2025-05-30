@@ -8,12 +8,7 @@
   <li><a href="#sobre-o-projeto">💡 Sobre o Projeto</a></li>
   <li><a href="#funcionalidades-principais">🚀 Funcionalidades Principais</a></li>
   <li><a href="#prototipagem">🎨 Prototipagem</a></li>
-  <li><a href="#tecnologias-utilizadas">🖥️ Tecnologias Utilizadas</a>
-    <ul>
-      <li><a href="#mobile">📱 Mobile</a></li>
-      <li><a href="#api">☕ API</a></li>
-    </ul>
-  </li>
+  <li><a href="#tecnologias-utilizadas">🖥️ Tecnologias Utilizadas</a></li>
   <li><a href="#estrutura-do-projeto">🗂️ Estrutura do Projeto</a></li>
   <li><a href="#documentacao-da-api">📄 Documentação da API</a></li>
   <li><a href="#deploy">🌐 Deploy</a></li>
@@ -46,10 +41,11 @@
 <h2 id="prototipagem">🎨 Prototipagem</h2>
 
 <p>O protótipo do TaskGreen foi desenvolvido de forma colaborativa por toda a equipe.</p>
+<p>OBS: Clique no ícone</p>
 
 <div align="center">
   <a href="https://www.figma.com/design/DxmX6RZuyLtmwlSwT33J3Z/Untitled?node-id=0-1&t=hQegNUyjqcYedE24-1" target="_blank">
-    <img src="https://skillicons.dev/icons?i=figma" alt="Abrir protótipo no Figma" width="80" />
+    <img src="https://skillicons.dev/icons?i=figma" alt="Abrir protótipo no Figma" width="60" />
   </a>
 </div>
 
@@ -58,7 +54,12 @@
 <h3 id="mobile">📱 Mobile</h3>
 
 <p>
-  <img src="https://skillicons.dev/icons?i=react,javascript" alt="React Native e JavaScript" />
+  <a href="https://reactnative.dev/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=react" alt="React Native" />
+  </a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
+    <img src="https://skillicons.dev/icons?i=javascript" alt="JavaScript" />
+  </a>
 </p>
 
 <p>Utilizamos <strong>React Native</strong> e <strong>React Navigation</strong> para estruturação das telas e navegação.<br>
@@ -69,7 +70,18 @@ Para requisições HTTP, utilizamos a biblioteca <strong>Axios</strong>.
 <h3 id="api">☕ API</h3>
 
 <p>
-  <img src="https://skillicons.dev/icons?i=java,spring,mongodb,docker" alt="Java, Spring, MongoDB e Docker" />
+  <a href="https://www.java.com/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=java" alt="Java" />
+  </a>
+  <a href="https://spring.io/projects/spring-boot" target="_blank">
+    <img src="https://skillicons.dev/icons?i=spring" alt="Spring Boot" />
+  </a>
+  <a href="https://www.mongodb.com/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=mongodb" alt="MongoDB" />
+  </a>
+  <a href="https://www.docker.com/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=docker" alt="Docker" />
+  </a>
 </p>
 
 <p>A API foi construída com <strong>Java</strong> e <strong>Spring Boot</strong> para estruturação RESTful, utilizando o <strong>MongoDB Atlas</strong> para persistência de dados.<br>
@@ -231,4 +243,5 @@ npx expo start --tunnel
 
 <h2 id="licenca">📝 Licença</h2>
 
-<p>Distribuído sob licença <strong>MIT</strong>.<br>Veja o arquivo <code>LICENSE</code> para mais informações.</p>
+<p>Distribuído sob licença <strong>MIT</strong>.<br>
+Veja o arquivo <a href="./LICENSE" target="_blank"><code>LICENSE</code></a> para mais informações.</p>

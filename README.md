@@ -103,7 +103,7 @@
 
 <p>
   🔍 <strong>Interface Swagger UI:</strong><br/>
-  👉 <a href="https://taskgreen.onrender.com/swagger-documents.html">https://taskgreen.onrender.com/swagger-documents.html</a><br/>
+  👉 <a href="https://taskgreen.onrender.com/swagger-ui/index.html">https://taskgreen.onrender.com/swagger-documents.html</a><br/>
   Esta é a interface bonitona, interativa, onde dá para testar os endpoints direto no navegador.
 </p>
 

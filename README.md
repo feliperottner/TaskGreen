@@ -170,7 +170,7 @@ npx expo start
   </tr>
   <tr>
     <td>Felipe Rottner Rodrigues</td>
-    <td>Back-end e Ligação entre front e back</td>
+    <td>Back-end</td>
   </tr>
   <tr>
     <td>Sabrina Ambrosia da Silva</td>
@@ -178,7 +178,7 @@ npx expo start
   </tr>
   <tr>
     <td>Vitor Aldivan Silva Lima</td>
-    <td>Front-end e Ligação entre front e back</td>
+    <td>Front-end & Ligação entre front e back</td>
   </tr>
   <tr>
     <td>Estella Beatriz Gutemberg Vilarouca De Sousa</td>
